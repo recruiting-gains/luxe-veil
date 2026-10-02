@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Luxe Veil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root { --cream:#f4efe8; --ink:#1b1916; --muted:#8a8178; --card:#fffdfb; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: radial-gradient(800px 480px at 80% 8%, #fff 0%, var(--cream) 46%, #efe4d8 100%); color: var(--ink); font-family: Inter, system-ui, sans-serif; min-height: 100dvh; }
+  nav { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: rgba(244,239,232,.86); backdrop-filter: blur(10px); }
+  .logo { font-family: "Cormorant Garamond", Georgia, serif; letter-spacing: .26em; font-size: 16px; font-weight: 600; }
+  .solid, .pill { font-family: inherit; cursor: pointer; background: var(--ink); color: #fff; border: 0; border-radius: 999px; padding: 10px 16px; font-size: 13px; }
+  .hero { padding: 8px 20px 28px; }
+  .kicker { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  h1 { font-size: 34px; line-height: .98; letter-spacing: -.03em; font-weight: 600; max-width: 16ch; }
+  .stage { margin: 18px 0 8px; height: 460px; position: relative; touch-action: none; perspective: 900px; }
+  .turn { width: 100%; height: 100%; display: grid; place-items: center; transform-style: preserve-3d; }
+  .head { width: 250px; height: 320px; position: relative; transform-style: preserve-3d; }
+  .head img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 48% 48% 44% 44%; box-shadow: 0 18px 40px rgba(120,80,40,.16); background: #f6eee6; }
+  .head .back { position: absolute; inset: 0; border-radius: 46%; background: radial-gradient(circle at 40% 30%, #f7efe6, #e4d3c4); transform: rotateY(180deg) translateZ(8px); }
+  .head .edge { position: absolute; inset: 18px; border-radius: 46%; background: #ecdccb; transform: translateZ(-18px); }
+  canvas#flakes { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hint { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 11px; letter-spacing: .14em; color: var(--muted); }
+  .book { margin-top: 8px; }
+  section.block { padding: 8px 18px 36px; }
+  .panel { background: rgba(255,252,248,.9); border: 1px solid rgba(28,26,23,.08); border-radius: 18px; padding: 16px; margin-top: 14px; box-shadow: 0 10px 28px rgba(80,50,20,.05); }
+  .panel h3 { font-size: 11px; letter-spacing: .14em; margin-bottom: 12px; }
+  .swatches { display: flex; gap: 8px; margin-bottom: 14px; }
+  .swatch { width: 32px; height: 32px; border-radius: 9px; border: 2px solid transparent; }
+  .swatch.on { border-color: var(--ink); }
+  .row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  input[type="range"] { width: 100%; accent-color: #1b1916; margin-bottom: 8px; }
+  .status { text-align: center; letter-spacing: .18em; font-size: 12px; margin-top: 18px; }
+  .bar { height: 3px; background: #e5dbd1; border-radius: 99px; margin: 10px auto 0; max-width: 240px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 68%; background: var(--ink); }
+  .book-block { text-align: center; padding: 20px 18px 80px; }
+  .book-block .logo { display: block; font-size: 22px; margin-bottom: 8px; }
+  .pill.light { background: #fff; color: var(--ink); border: 1px solid rgba(28,26,23,.1); margin-top: 8px; }
+  .sheet { position: fixed; inset: 0; background: rgba(27,25,22,.3); display: none; place-items: end center; z-index: 9; }
+  .sheet.on { display: grid; }
+  .card { width: 100%; background: #fbf8f4; border-radius: 22px 22px 0 0; padding: 22px 18px 32px; }
+  .card h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 32px; margin: 6px 0 8px; }
+  .card p { color: #6d655c; font-size: 14px; line-height: 1.5; }
+  .fields { display: grid; gap: 10px; margin: 16px 0; }
+  .fields input, .fields select { width: 100%; border: 1px solid rgba(28,26,23,.1); background: #fff; border-radius: 12px; padding: 12px 14px; font: inherit; font-size: 16px; }
+  .done { display: none; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">LUXE VEIL</div>
+  <button class="solid" onclick="openSheet()">Sign Up</button>
+</nav>
+<header class="hero">
+  <div class="kicker">Studio / Skin Ritual</div>
+  <h1>THIS IS WHAT A BEAUTY WEBSITE SHOULD FEEL LIKE.</h1>
+  <div class="stage" id="stage">
+    <div class="turn" id="turn">
+      <div class="head" id="head">
+        <div class="edge"></div>
+        <img src="https://tmpfiles.org/dl/wYA5ewQDyUPg/face-veil.jpg" alt="Luxe Veil 3D face" />
+        <div class="back"></div>
+      </div>
+    </div>
+    <canvas id="flakes"></canvas>
+    <div class="hint">DRAG THE FACE</div>
+  </div>
+  <button class="book solid" onclick="document.getElementById('match').scrollIntoView()">Book Now →</button>
+</header>
+<section class="block" id="match">
+  <div class="panel">
+    <h3>SKIN TONE</h3>
+    <div class="swatches" id="tones">
+      <button class="swatch on" style="background:#f0d2b8" data-tint="#f0d2b8"></button>
+      <button class="swatch" style="background:#e0b08a" data-tint="#e0b08a"></button>
+      <button class="swatch" style="background:#c48a62" data-tint="#c48a62"></button>
+      <button class="swatch" style="background:#8d5a3c" data-tint="#8d5a3c"></button>
+    </div>
+    <div class="row"><span>GLOW LEVEL</span><span id="glowVal">62%</span></div>
+    <input id="glow" type="range" min="20" max="100" value="62" />
+    <h3>SHADE MATCH</h3>
+    <div class="swatches">
+      <span class="swatch" style="background:#f6e3d4"></span>
+      <span class="swatch" style="background:#e7c3a4"></span>
+      <span class="swatch" style="background:#d7a684"></span>
+      <span class="swatch" style="background:#b98362"></span>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>UNDERTONE</h3>
+    <div class="row"><span>MATCH</span><span id="toneVal">Warm</span></div>
+    <input id="tone" type="range" min="0" max="100" value="68" />
+    <div class="swatches">
+      <span class="swatch" style="background:#f4d7c4"></span>
+      <span class="swatch" style="background:#e8b89a"></span>
+      <span class="swatch" style="background:#c99270"></span>
+      <span class="swatch" style="background:#a56b4a"></span>
+    </div>
+    <div class="status">ANALYZING YOUR GLOW...</div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+</section>
+<section class="book-block" id="book">
+  <div class="logo">LUXE VEIL</div>
+  <p class="kicker">Perfect match held for you</p>
+  <button class="pill light" onclick="openSheet()">BOOK YOUR GLAM SESSION →</button>
+</section>
+<div class="sheet" id="sheet">
+  <div class="card">
+    <div id="form">
+      <div class="kicker">Luxe Veil · private studio</div>
+      <h2>Book the glow.</h2>
+      <p>A 45 minute shade match. You leave with the blend, not a guess.</p>
+      <div class="fields">
+        <input id="name" placeholder="Name" />
+        <input id="when" placeholder="Day you want" />
+        <select id="service">
+          <option>Signature glam session</option>
+          <option>Skin tone match only</option>
+          <option>Bridal trial</option>
+        </select>
+      </div>
+      <button class="solid" onclick="confirmBook()">Hold this time</button>
+    </div>
+    <div class="done" id="done">
+      <h2>Session held.</h2>
+      <p id="confirm"></p>
+      <button class="solid" style="margin-top:16px" onclick="closeSheet()">Close</button>
+    </div>
+  </div>
+</div>
+<script>
+const stage = document.getElementById("stage");
+const head = document.getElementById("head");
+let drag = false, lx = 0, rot = 18, target = 18;
+stage.addEventListener("pointerdown", (e) => { drag = true; lx = e.clientX; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener("pointerup", () => drag = false);
+stage.addEventListener("pointercancel", () => drag = false);
+stage.addEventListener("pointermove", (e) => { if (!drag) return; target += (e.clientX - lx) * 0.45; lx = e.clientX; });
+function spin() { if (!drag) target += 0.15; rot += (target - rot) * 0.08; head.style.transform = "rotateY(" + rot + "deg) rotateX(6deg)"; requestAnimationFrame(spin); }
+requestAnimationFrame(spin);
+const flakes = document.getElementById("flakes");
+const ctx = flakes.getContext("2d");
+const bits = Array.from({length: 28}, () => ({ x: 0.62 + Math.random() * 0.3, y: 0.25 + Math.random() * 0.5, s: 2 + Math.random() * 4 }));
+function drawFlakes(t) { const w = flakes.clientWidth, h = flakes.clientHeight; if (flakes.width !== w) flakes.width = w; if (flakes.height !== h) flakes.height = h; ctx.clearRect(0, 0, w, h); bits.forEach((b, i) => { const y = (b.y + Math.sin(t / 900 + i) * 0.03) * h; ctx.fillStyle = i % 2 ? "#c48962" : "#e7c3a4"; ctx.fillRect(b.x * w, y, b.s, b.s * 0.7); }); requestAnimationFrame(drawFlakes); }
+requestAnimationFrame(drawFlakes);
+window.luxeSetTint = (hex) => { head.style.filter = "sepia(.25) saturate(1.05)"; };
+function openSheet() { document.getElementById("sheet").classList.add("on"); }
+function closeSheet() { document.getElementById("sheet").classList.remove("on"); }
+function confirmBook() { const name = document.getElementById("name").value.trim() || "your friend"; const when = document.getElementById("when").value.trim() || "this week"; document.getElementById("confirm").textContent = name + " is held for " + document.getElementById("service").value.toLowerCase() + " on " + when + "."; document.getElementById("form").style.display = "none"; document.getElementById("done").style.display = "block"; }
+document.getElementById("tones").addEventListener("click", (e) => { const b = e.target.closest(".swatch"); if (!b) return; document.querySelectorAll("#tones .swatch").forEach(s => s.classList.remove("on")); b.classList.add("on"); if (window.luxeSetTint) window.luxeSetTint(b.dataset.tint); });
+document.getElementById("glow").addEventListener("input", (e) => { document.getElementById("glowVal").textContent = e.target.value + "%"; document.getElementById("bar").style.width = e.target.value + "%"; });
+document.getElementById("tone").addEventListener("input", (e) => { const v = +e.target.value; document.getElementById("toneVal").textContent = v < 35 ? "Cool" : v < 65 ? "Neutral" : "Warm"; });
+</script>
+</body>
+</html>
